@@ -140,21 +140,26 @@ ENV HTTPS_PORT 443
 ENV RTMP_PORT 1935
 
 RUN apk add --no-cache \
+  fdk-aac \
+  freetype \
   gettext \
-  pcre \
-  lame \
+  lame-libs \
   libogg \
-  libvpx \
-  libvorbis \
-  libwebp \
   libtheora \
+  libvorbis \
+  libvpx \
+  libwebp \
+  libwebpmux \
+  libxcb \
   opus \
-  rtmpdump
+  pcre \
+  rtmpdump \
+  x264 \
+  x265
 
 COPY --from=build-nginx /usr/local/nginx /usr/local/nginx
 COPY --from=build-nginx /etc/nginx /etc/nginx
 COPY --from=build-ffmpeg /usr/local /usr/local
-COPY --from=build-ffmpeg /usr/lib/libfdk-aac.so.2 /usr/lib/libfdk-aac.so.2
 
 # Add NGINX path, config and static files.
 ENV PATH "${PATH}:/usr/local/nginx/sbin"
