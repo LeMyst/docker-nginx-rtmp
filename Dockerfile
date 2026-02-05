@@ -7,7 +7,7 @@ ARG ALPINE_VERSION=3.23
 # Build the base build image.
 FROM alpine:${ALPINE_VERSION} AS build-base
 
-RUN apk add --no-cache \
+RUN apk upgrade --no-cache --latest && apk add --no-cache \
   build-base \
   ca-certificates \
   curl \
@@ -88,7 +88,7 @@ RUN apk add --no-cache \
   wget \
   x264-dev \
   x265-dev \
-  yasm
+  nasm
 
 WORKDIR /tmp
 
@@ -116,7 +116,6 @@ RUN \
   --enable-libfdk-aac \
   --enable-libass \
   --enable-libwebp \
-  --enable-postproc \
   --enable-libfreetype \
   --enable-openssl \
   --disable-debug \
