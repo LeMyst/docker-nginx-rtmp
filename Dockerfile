@@ -144,6 +144,7 @@ COPY --from=build-ffmpeg /usr/local /usr/local
 # Add NGINX path, config and static files.
 ENV PATH "${PATH}:/usr/local/nginx/sbin"
 COPY nginx.conf /etc/nginx/nginx.conf.template
+COPY htpasswd /etc/nginx/htpasswd
 RUN mkdir -p /opt/data && \
     mkdir -p /srv/www
 COPY static /srv/www/static

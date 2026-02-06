@@ -56,6 +56,14 @@ volumes:
   - ./nginx.conf:/etc/nginx/nginx.conf.template
 ```
 
+## Authentication
+The /stat endpoint is protected by basic authentication. The default username and password are `admin` and `admin`.  
+You can mount your own `htpasswd` file to `/etc/nginx/htpasswd` to change the credentials.
+```yaml
+volumes:
+  - ./htpasswd:/etc/nginx/htpasswd
+```
+
 ### OBS Configuration
 * Stream Type: `Custom Streaming Server`
 * URL: `rtmp://localhost:1935/stream`
