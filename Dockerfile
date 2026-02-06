@@ -1,5 +1,5 @@
 ARG NGINX_VERSION=1.28.2
-ARG NGINX_RTMP_VERSION=1.2.2
+ARG NGINX_RTMP_VERSION=dev
 ARG FFMPEG_VERSION=8.0.1
 ARG ALPINE_VERSION=3.23
 
@@ -45,9 +45,9 @@ RUN wget https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz && \
   rm nginx-${NGINX_VERSION}.tar.gz
 
 # Get nginx-rtmp module.
-RUN wget https://github.com/arut/nginx-rtmp-module/archive/v${NGINX_RTMP_VERSION}.tar.gz && \
-  tar zxf v${NGINX_RTMP_VERSION}.tar.gz && \
-  rm v${NGINX_RTMP_VERSION}.tar.gz
+RUN wget https://github.com/sergey-dryabzhinsky/nginx-rtmp-module/archive/refs/heads/${NGINX_RTMP_VERSION}.zip && \
+  unzip ${NGINX_RTMP_VERSION}.zip && \
+  rm ${NGINX_RTMP_VERSION}.zip
 
 # Compile nginx with nginx-rtmp module.
 WORKDIR /tmp/nginx-${NGINX_VERSION}
