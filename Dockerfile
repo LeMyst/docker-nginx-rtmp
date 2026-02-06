@@ -8,17 +8,9 @@ ARG ALPINE_VERSION=3.23
 FROM alpine:${ALPINE_VERSION} AS build-base
 
 RUN apk upgrade --no-cache --latest && apk add --no-cache \
-  build-base \
   ca-certificates \
-  curl \
-  libass \
-  openssl \
   openssl-dev \
-  pcre \
-  pkgconf \
-  pkgconfig \
-  x264-dev \
-  x265-dev
+  build-base
 
 ##############################
 # Build the NGINX-build image.
@@ -28,12 +20,7 @@ ARG NGINX_RTMP_VERSION
 
 # Build dependencies.
 RUN apk add --no-cache \
-  gcc \
-  libc-dev \
-  libgcc \
   linux-headers \
-  make \
-  musl-dev \
   pcre-dev \
   zlib-dev
 
@@ -66,29 +53,24 @@ RUN \
   make install
 
 ###############################
-# Build the FFmpeg-build image.
+## Build the FFmpeg-build image.
 FROM build-base AS build-ffmpeg
 ARG FFMPEG_VERSION
 ARG PREFIX=/usr/local
 
 # FFmpeg build dependencies.
 RUN apk add --no-cache \
-  coreutils \
   fdk-aac-dev \
-  freetype-dev \
   lame-dev \
-  libogg-dev \
   libass-dev \
-  libvpx-dev \
-  libvorbis-dev \
-  libwebp-dev \
   libtheora-dev \
+  libvorbis-dev \
+  libvpx-dev \
+  libwebp-dev \
+  nasm \
   opus-dev \
-  rtmpdump-dev \
-  wget \
   x264-dev \
-  x265-dev \
-  nasm
+  x265-dev
 
 WORKDIR /tmp
 
@@ -126,25 +108,23 @@ RUN \
   make install && \
   make distclean
 
-# Cleanup.
-RUN rm -rf /var/cache/* /tmp/*
-
 ##########################
 # Build the release image.
-FROM build-base
-LABEL MAINTAINER Alfred Gutierrez <alf.g.jr@gmail.com>
+FROM alpine:${ALPINE_VERSION}
+LABEL maintainer="Alfred Gutierrez <alf.g.jr@gmail.com>"
 
 # Set default ports.
 ENV HTTP_PORT 80
 ENV HTTPS_PORT 443
 ENV RTMP_PORT 1935
 
-RUN apk add --no-cache \
+RUN apk upgrade --no-cache --latest && apk add --no-cache \
+  ca-certificates \
   fdk-aac \
   freetype \
   gettext \
   lame-libs \
-  libogg \
+  libass \
   libtheora \
   libvorbis \
   libvpx \
@@ -154,7 +134,7 @@ RUN apk add --no-cache \
   opus \
   pcre \
   rtmpdump \
-  x264 \
+  x264-dev \
   x265
 
 COPY --from=build-nginx /usr/local/nginx /usr/local/nginx
@@ -164,8 +144,9 @@ COPY --from=build-ffmpeg /usr/local /usr/local
 # Add NGINX path, config and static files.
 ENV PATH "${PATH}:/usr/local/nginx/sbin"
 COPY nginx.conf /etc/nginx/nginx.conf.template
-RUN mkdir -p /opt/data && mkdir /www
-COPY static /www/static
+RUN mkdir -p /opt/data && \
+    mkdir -p /srv/www
+COPY static /srv/www/static
 
 EXPOSE 1935
 EXPOSE 80
