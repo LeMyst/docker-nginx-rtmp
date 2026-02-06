@@ -1,6 +1,7 @@
 services:
   nginx-rtmp:
-    build: .
+#    build: .
+    image: ghcr.io/lemyst/docker-nginx-rtmp:master
     ports:
       - 1935:1935
       - 8080:80
