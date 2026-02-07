@@ -118,9 +118,9 @@ ARG USER_UID
 ARG USER_GID
 
 # Set default ports.
-ENV HTTP_PORT 80
-ENV HTTPS_PORT 443
-ENV RTMP_PORT 1935
+ENV HTTP_PORT=8080
+ENV HTTPS_PORT=8443
+ENV RTMP_PORT=1935
 
 RUN addgroup -g ${USER_GID} -S ${USERNAME} && \
   adduser -u ${USER_UID} -D -S -G ${USERNAME} ${USERNAME}
@@ -152,19 +152,19 @@ RUN mkdir -p /opt/data && \
 
 USER ${USERNAME}
 
-COPY --from=build-nginx /usr/local/nginx /usr/local/nginx
-COPY --from=build-nginx /etc/nginx /etc/nginx
-COPY --from=build-ffmpeg /usr/local /usr/local
+COPY --chown=${USERNAME}:${USERNAME} --from=build-nginx /usr/local/nginx /usr/local/nginx
+COPY --chown=${USERNAME}:${USERNAME} --from=build-nginx /etc/nginx /etc/nginx
+COPY --chown=${USERNAME}:${USERNAME} --from=build-ffmpeg /usr/local /usr/local
 
 # Add NGINX path, config and static files.
-ENV PATH "${PATH}:/usr/local/nginx/sbin"
+ENV PATH="${PATH}:/usr/local/nginx/sbin"
 COPY nginx.conf /etc/nginx/nginx.conf.template
 COPY htpasswd /etc/nginx/htpasswd
 COPY static /srv/www/static
+COPY --chmod=755 entrypoint.sh /entrypoint.sh
 
 EXPOSE 1935
 EXPOSE 80
 
-CMD envsubst "$(env | sed -e 's/=.*//' -e 's/^/\$/g')" < \
-  /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && \
-  nginx -g 'daemon off;'
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]
