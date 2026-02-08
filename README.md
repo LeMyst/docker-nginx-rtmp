@@ -1,10 +1,11 @@
 # docker-nginx-rtmp
+
 A Dockerfile installing NGINX, nginx-rtmp-module and FFmpeg from source with
 default settings for HLS live streaming. Built on Alpine Linux.
 
-* Nginx 1.23.1 (Mainline version compiled from source)
-* nginx-rtmp-module 1.2.2 (compiled from source)
-* ffmpeg 5.1 (compiled from source)
+* Nginx 1.28.2 (Mainline version compiled from [source](https://github.com/nginx/nginx.git))
+* nginx-rtmp-module dev (compiled from [source](https://github.com/sergey-dryabzhinsky/nginx-rtmp-module/))
+* ffmpeg 8.0.1 (compiled from [source](https://git.ffmpeg.org/ffmpeg.git))
 * Default HLS settings (See: [nginx.conf](nginx.conf))
 
 [![Docker Stars](https://img.shields.io/docker/stars/lemyst/docker-nginx-rtmp.svg)](https://hub.docker.com/r/lemyst/docker-nginx-rtmp/)
@@ -15,26 +16,33 @@ default settings for HLS live streaming. Built on Alpine Linux.
 ## Usage
 
 ### Server
+
 * Pull docker image and run:
+
 ```
 docker pull ghcr.io/lemyst/docker-nginx-rtmp
 docker run -it -p 1935:1935 -p 8080:80 --rm ghcr.io/lemyst/docker-nginx-rtmp
 ```
-or 
+
+or
 
 * Build and run container from source:
+
 ```
 docker build -t nginx-rtmp .
 docker run -it -p 1935:1935 -p 8080:80 --rm nginx-rtmp
 ```
 
 * Stream live content to:
+
 ```
 rtmp://localhost:1935/stream/$STREAM_NAME
 ```
 
-### SSL 
+### SSL
+
 To enable SSL, see [nginx.conf](nginx.conf) and uncomment the lines:
+
 ```
 listen 443 ssl;
 ssl_certificate     /opt/certs/example.com.crt;
@@ -46,59 +54,66 @@ This will enable HTTPS using a self-signed certificate supplied in [/certs](/cer
 I recommend using [Certbot](https://certbot.eff.org/docs/install.html) from [Let's Encrypt](https://letsencrypt.org).
 
 ### Environment Variables
+
 This Docker image uses `envsubst` for environment variable substitution. You can define additional environment variables in `nginx.conf` as `${var}` and pass them in your `docker-compose` file or `docker` command.
 
-
 ### Custom `nginx.conf`
+
 If you wish to use your own `nginx.conf`, mount it as a volume in your `docker-compose` or `docker` command as `nginx.conf.template`:
+
 ```yaml
 volumes:
-  - ./nginx.conf:/etc/nginx/nginx.conf.template
+- ./nginx.conf:/etc/nginx/nginx.conf.template
 ```
 
 ## Authentication
+
 The /stat endpoint is protected by basic authentication. The default username and password are `admin` and `admin`.  
 You can mount your own `htpasswd` file to `/etc/nginx/htpasswd` to change the credentials.
+
 ```yaml
 volumes:
-  - ./htpasswd:/etc/nginx/htpasswd
+- ./htpasswd:/etc/nginx/htpasswd
 ```
 
 ### OBS Configuration
+
 * Stream Type: `Custom Streaming Server`
 * URL: `rtmp://localhost:1935/stream`
 * Stream Key: `hello`
 
 ### Watch Stream
+
 * Load up the example hls.js player in your browser:
+
 ```
 http://localhost:8080/player.html?url=http://localhost:8080/live/hello.m3u8
 ```
 
 * Or in Safari, VLC or any HLS player, open:
+
 ```
 http://localhost:8080/live/$STREAM_NAME.m3u8
 ```
+
 * Example Playlist: `http://localhost:8080/live/hello.m3u8`
 * [HLS.js Player](https://hls-js.netlify.app/demo/?src=http%3A%2F%2Flocalhost%3A8080%2Flive%2Fhello.m3u8)
 * FFplay: `ffplay -fflags nobuffer rtmp://localhost:1935/stream/hello`
 
 ### FFmpeg Build
+
 ```
 $ ffmpeg -buildconf
-
-ffmpeg version 4.4 Copyright (c) 2000-2021 the FFmpeg developers
-  built with gcc 10.2.1 (Alpine 10.2.1_pre1) 20201203
-  configuration: --prefix=/usr/local --enable-version3 --enable-gpl --enable-nonfree --enable-small --enable-libmp3lame --enable-libx264 --enable-libx265 --enable-libvpx --enable-libtheora --enable-libvorbis --enable-libopus --enable-libfdk-aac --enable-libass --enable-libwebp --enable-postproc --enable-avresample --enable-libfreetype --enable-openssl --disable-debug --disable-doc --disable-ffplay --extra-libs='-lpthread -lm'
-  libavutil      56. 70.100 / 56. 70.100
-  libavcodec     58.134.100 / 58.134.100
-  libavformat    58. 76.100 / 58. 76.100
-  libavdevice    58. 13.100 / 58. 13.100
-  libavfilter     7.110.100 /  7.110.100
-  libavresample   4.  0.  0 /  4.  0.  0
-  libswscale      5.  9.100 /  5.  9.100
-  libswresample   3.  9.100 /  3.  9.100
-  libpostproc    55.  9.100 / 55.  9.100
+ffmpeg version n8.0.1 Copyright (c) 2000-2025 the FFmpeg developers
+  built with gcc 15.2.0 (Alpine 15.2.0)
+  configuration: --prefix=/usr/local --enable-version3 --enable-gpl --enable-nonfree --enable-small --enable-libmp3lame --enable-libx264 --enable-libx265 --enable-libvpx --enable-libtheora --enable-libvorbis --enable-libopus --enable-libfdk-aac --enable-libass --enable-libwebp --enable-libfreetype --enable-openssl --disable-debug --disable-doc --disable-ffplay --extra-libs='-lpthread -lm'
+  libavutil      60.  8.100 / 60.  8.100
+  libavcodec     62. 11.100 / 62. 11.100
+  libavformat    62.  3.100 / 62.  3.100
+  libavdevice    62.  1.100 / 62.  1.100
+  libavfilter    11.  4.100 / 11.  4.100
+  libswscale      9.  1.100 /  9.  1.100
+  libswresample   6.  1.100 /  6.  1.100
 
   configuration:
     --prefix=/usr/local
@@ -116,8 +131,6 @@ ffmpeg version 4.4 Copyright (c) 2000-2021 the FFmpeg developers
     --enable-libfdk-aac
     --enable-libass
     --enable-libwebp
-    --enable-postproc
-    --enable-avresample
     --enable-libfreetype
     --enable-openssl
     --disable-debug
@@ -126,38 +139,10 @@ ffmpeg version 4.4 Copyright (c) 2000-2021 the FFmpeg developers
     --extra-libs='-lpthread -lm'
 ```
 
-
-[//]: # (### FFmpeg Hardware Acceleration)
-
-[//]: # (A `Dockerfile.cuda` image is available to enable FFmpeg hardware acceleration via the [NVIDIA's CUDA]&#40;https://trac.ffmpeg.org/wiki/HWAccelIntro#CUDANVENCNVDEC&#41;.)
-
-[//]: # ()
-[//]: # (Use the tag: `alfg/nginx-rtmp:cuda`:)
-
-[//]: # (```)
-
-[//]: # (docker run -it -p 1935:1935 -p 8080:80 --rm alfg/nginx-rtmp:cuda)
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (You must have a supported platform and driver to run this image.)
-
-[//]: # ()
-[//]: # (* https://github.com/NVIDIA/nvidia-docker)
-
-[//]: # (* https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker)
-
-[//]: # (* https://docs.docker.com/docker-for-windows/wsl/)
-
-[//]: # (* https://trac.ffmpeg.org/wiki/HWAccelIntro#CUDANVENCNVDEC)
-
-[//]: # ()
-[//]: # (**This image is experimental!*)
-
 ## Resources
+
 * https://alpinelinux.org/
 * http://nginx.org
-* https://github.com/arut/nginx-rtmp-module
+* https://github.com/sergey-dryabzhinsky/nginx-rtmp-module/
 * https://www.ffmpeg.org
 * https://obsproject.com
