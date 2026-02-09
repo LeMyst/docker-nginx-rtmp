@@ -1,7 +1,6 @@
 services:
-  nginx-rtmp:
-#    build: .
-    image: ghcr.io/lemyst/docker-nginx-rtmp:master
+  nginx:
+    build: .
     ports:
       - 1935:1935
       - 8080:80
@@ -11,3 +10,9 @@ services:
       - RTMP_PORT=1935
     volumes:
       - ./certs:/opt/certs
+    depends_on:
+    - auth
+  auth:
+    build: ./authentication
+    environment:
+    - VALID_STREAM_KEYS=key1,key2,key3
