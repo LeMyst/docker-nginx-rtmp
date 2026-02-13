@@ -11,4 +11,5 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "auth:app"]
+ENTRYPOINT ["gunicorn"]
+CMD ["--bind", "0.0.0.0:5000", "auth:app"]
