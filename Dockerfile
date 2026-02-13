@@ -127,6 +127,7 @@ RUN addgroup -g ${USER_GID} -S ${USERNAME} && \
 
 RUN apk upgrade --no-cache --latest && apk add --no-cache \
   ca-certificates \
+  curl \
   fdk-aac \
   freetype \
   gettext \
