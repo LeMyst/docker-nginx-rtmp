@@ -4,6 +4,8 @@ WORKDIR /app
 
 ENV PYTHONUNBUFFERED=1
 
+RUN apk upgrade --no-cache --latest
+
 COPY auth.py .
 COPY requirements.txt .
 
