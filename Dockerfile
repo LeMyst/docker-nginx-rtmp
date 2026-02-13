@@ -160,6 +160,7 @@ COPY --chown=${USERNAME}:${USERNAME} --from=build-ffmpeg /usr/local /usr/local
 ENV PATH="${PATH}:/usr/local/nginx/sbin"
 COPY nginx.conf /etc/nginx/nginx.conf.template
 COPY htpasswd /etc/nginx/htpasswd
+COPY tech_diff_fred_seibert_cc-by-nc-nd-2.jpg /etc/nginx/tech_diff_fred_seibert_cc-by-nc-nd-2.jpg
 COPY static /srv/www/static
 COPY --chmod=755 entrypoint.sh /entrypoint.sh
 
